@@ -1,0 +1,42 @@
+name: Build
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+on:
+  push:
+    paths:
+    - .github/workflows/build.yml
+    - '**/*.rs'
+    - Cargo.lock
+    - Cargo.toml
+    tags-ignore: ['*']
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Set up Rust
+      id: rust
+      uses: actions-rs/toolchain@master
+      with:
+        toolchain: stable
+
+    - name: Restore cache
+      uses: actions/cache@main
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/git/db/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          target/
+        key: build-${{ runner.os }}-${{ steps.rust.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Build
+      run: cargo build --all-features --examples

@@ -1,0 +1,42 @@
+name: Lint
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+on:
+  push:
+    tags-ignore: ['*']
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Set up Python
+      uses: actions/setup-python@main
+      with:
+        python-version: '3'
+
+    - name: Set up Rust
+      id: rust
+      uses: actions-rs/toolchain@master
+      with:
+        toolchain: stable
+
+    - name: Restore cache
+      uses: actions/cache@main
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/git/db/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          target/
+        key: build-${{ runner.os }}-${{ steps.rust.outputs.rustc_hash }}-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Run pre-commit
+      uses: pre-commit/action@main

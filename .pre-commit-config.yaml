@@ -1,0 +1,27 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+  - id: check-json
+  - id: check-yaml
+  - id: pretty-format-json
+    args: [--autofix]
+  - id: trailing-whitespace
+    exclude: .rs$
+  - id: end-of-file-fixer
+    exclude: .rs$
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.11.0
+  hooks:
+  - id: pretty-format-yaml
+    args: [--autofix]
+  - id: pretty-format-toml
+    args: [--autofix]
+- repo: https://github.com/doublify/pre-commit-rust
+  rev: v1.0
+  hooks:
+  - id: fmt
+  - id: cargo-check
+    args: [--all-features]
+  - id: clippy
+    args: [--all-features, --tests, --, -D, warnings]
